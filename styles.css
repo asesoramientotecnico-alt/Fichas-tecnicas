@@ -197,8 +197,17 @@ tr.serie-sep td { background: var(--azul) !important; color: white !important; f
 /* ══ ESTILOS DE EDICIÓN Y TOOLBAR ══ */
 .toolbar-hidden { display: none !important; }
 .edit-only { display: none !important; }
+.edit-only-flex { display: none !important; }
 .edit-mode .edit-only { display: inline-block !important; }
 .edit-mode .edit-only-flex { display: flex !important; }
+
+/* Varias tablas por ficha */
+.tabla-bloque { margin-bottom: 6mm; break-inside: avoid; page-break-inside: avoid; }
+.tabla-bloque:last-child { margin-bottom: 0; }
+.tabla-add-bar { margin-top: 3mm; }
+.btn-agregar-tabla { background:#e8f4e8; color:#2a7a2a; border:1px solid #aadaaa; border-radius:4px; padding:6px 12px; font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; }
+.btn-agregar-tabla:hover { background:#d8edd8; }
+.edit-mode .ficha__tabla-titulo[contenteditable="true"] { display: flex !important; }
 
 .edit-mode [contenteditable="true"] { outline: none; border-bottom: 1.5px dashed #003DA5; background: rgba(0,61,165,0.03); cursor: text; min-width: 10px; display: inline-block; }
 .edit-mode [contenteditable="true"]:focus { background: rgba(0,61,165,0.07); border-bottom-color: #C8102E; border-radius: 2px 2px 0 0; }
@@ -225,6 +234,9 @@ tr.serie-sep td { background: var(--azul) !important; color: white !important; f
   body { background: white; }
   .pagina, .ficha { margin: 0; box-shadow: none; page-break-after: always; }
   .ficha.imprimiendo { display: flex !important; }
-  .ficha__tabla-wrap, .ficha__normas-bloque, .prop-mec { break-inside: avoid; page-break-inside: avoid; }
-  .btn-floating, #edit-toolbar, .edit-only, .btn-exportar-ficha { display: none !important; }
+  /* Al exportar una sola ficha, ocultar el resto del catálogo */
+  body.imprimiendo-una .pagina,
+  body.imprimiendo-una .ficha:not(.imprimiendo) { display: none !important; }
+  .ficha__tabla-wrap, .ficha__normas-bloque, .prop-mec, .tabla-bloque { break-inside: avoid; page-break-inside: avoid; }
+  .btn-floating, #edit-toolbar, .edit-only, .edit-only-flex, .btn-exportar-ficha { display: none !important; }
 }

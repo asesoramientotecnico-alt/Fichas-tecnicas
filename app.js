@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const estadoGuardado = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (estadoGuardado) {
             container.innerHTML = estadoGuardado;
+            migrarEstructura();
         } else {
             if (typeof catalogoData !== 'undefined' && catalogoData.fichas) {
                 renderizarCatalogoDesdeData();
@@ -26,6 +27,57 @@ document.addEventListener("DOMContentLoaded", () => {
         if (container) {
             localStorage.setItem(LOCAL_STORAGE_KEY, container.innerHTML);
         }
+    }
+
+    // Actualiza estados guardados con la estructura antigua (una sola
+    // tabla, botón de exportar solo en edición) a la estructura nueva,
+    // preservando textos e imágenes ya cargadas. Es idempotente.
+    function migrarEstructura() {
+        let cambios = false;
+
+        container.querySelectorAll('.btn-exportar-ficha').forEach(btn => {
+            if (btn.classList.contains('edit-only')) { btn.classList.remove('edit-only'); cambios = true; }
+            if (/exportar/i.test(btn.textContent)) { btn.textContent = '⬇ Descargar PDF'; cambios = true; }
+        });
+
+        container.querySelectorAll('.ficha__tabla-wrap').forEach(wrap => {
+            if (wrap.querySelector('.ficha__tablas')) return; // ya migrado
+            const tabla = wrap.querySelector('table.cotas');
+            if (!tabla) return;
+            const titulo = wrap.querySelector('.ficha__tabla-titulo');
+            const editBar = wrap.querySelector('.tabla-edit-bar');
+
+            const bloque = document.createElement('div');
+            bloque.className = 'tabla-bloque';
+            if (titulo) { titulo.setAttribute('contenteditable', 'true'); bloque.appendChild(titulo); }
+            if (editBar) {
+                if (!editBar.querySelector('.btn-eliminar-tabla')) {
+                    const del = document.createElement('button');
+                    del.className = 'btn-eliminar-tabla';
+                    del.setAttribute('style', 'background:#fdeaec; color:#C8102E; border:1px solid #f1b9c0; border-radius:4px; padding:6px 12px; font-family:inherit; font-size:12px; font-weight:600; cursor:pointer;');
+                    del.textContent = '🗑 Eliminar tabla';
+                    editBar.appendChild(del);
+                }
+                bloque.appendChild(editBar);
+            }
+            bloque.appendChild(tabla);
+
+            const tablasCont = document.createElement('div');
+            tablasCont.className = 'ficha__tablas';
+            tablasCont.appendChild(bloque);
+            wrap.appendChild(tablasCont);
+
+            const addBar = document.createElement('div');
+            addBar.className = 'tabla-add-bar edit-only-flex';
+            const addBtn = document.createElement('button');
+            addBtn.className = 'btn-agregar-tabla';
+            addBtn.textContent = '➕ Agregar otra tabla';
+            addBar.appendChild(addBtn);
+            wrap.appendChild(addBar);
+            cambios = true;
+        });
+
+        if (cambios) guardarEstadoLocal();
     }
 
     // ==========================================
@@ -81,6 +133,26 @@ document.addEventListener("DOMContentLoaded", () => {
                 contenedor.innerHTML = htmlBadges;
             }
         });
+    }
+
+    // ==========================================
+    // BLOQUE DE TABLA (título editable + tabla)
+    // Permite tener varias tablas por ficha,
+    // cada una con su propio encabezado/título.
+    // ==========================================
+    function crearTablaBloqueHTML(titulo, headers, body) {
+        return `
+        <div class="tabla-bloque">
+          <div class="ficha__tabla-titulo" contenteditable="true">${titulo}</div>
+          <div class="tabla-edit-bar edit-only-flex">
+            <button class="btn-pegar-excel" style="background:#e8eef8; color:#003DA5; border:1px solid #b0c4e8; border-radius:4px; padding:6px 12px; font-family:inherit; font-size:12px; font-weight:600; cursor:pointer;">📋 Cargar tabla desde Excel</button>
+            <button class="btn-eliminar-tabla" style="background:#fdeaec; color:#C8102E; border:1px solid #f1b9c0; border-radius:4px; padding:6px 12px; font-family:inherit; font-size:12px; font-weight:600; cursor:pointer;">🗑 Eliminar tabla</button>
+          </div>
+          <table class="cotas">
+            <thead>${headers}</thead>
+            <tbody>${body}</tbody>
+          </table>
+        </div>`;
     }
 
     // ==========================================
@@ -156,19 +228,17 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
               </div>
               <div class="ficha__tabla-wrap">
-                <div class="ficha__tabla-titulo">Tabla de cotas y dimensiones</div>
-                <div class="tabla-edit-bar edit-only-flex">
-                    <button class="btn-pegar-excel" style="background:#e8eef8; color:#003DA5; border:1px solid #b0c4e8; border-radius:4px; padding:6px 12px; font-family:inherit; font-size:12px; font-weight:600; cursor:pointer;">📋 Cargar tabla desde Excel</button>
+                <div class="ficha__tablas">
+                  ${crearTablaBloqueHTML('Tabla de cotas y dimensiones', ficha.tabla_headers || '', ficha.tabla_body || '')}
                 </div>
-                <table class="cotas">
-                    <thead>${ficha.tabla_headers || ''}</thead>
-                    <tbody>${ficha.tabla_body || ''}</tbody>
-                </table>
+                <div class="tabla-add-bar edit-only-flex">
+                  <button class="btn-agregar-tabla">➕ Agregar otra tabla</button>
+                </div>
               </div>
               <div class="ficha__pie">
                 <span class="ficha__pie-nota" contenteditable="true">Datos orientativos. Confirmar disponibilidad con equipo técnico · famiq.com.ar</span>
                 <span class="ficha__pie-pag">${ficha.pie_pagina || ''}</span>
-                <button class="btn-exportar-ficha edit-only" data-id="${ficha.id}">⬇ Exportar esta ficha</button>
+                <button class="btn-exportar-ficha" data-id="${ficha.id}">⬇ Descargar PDF</button>
               </div>
             </div>`;
         });
@@ -248,12 +318,41 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
+        // Agregar otra tabla a la ficha
+        if (e.target.matches(".btn-agregar-tabla")) {
+            const contenedor = e.target.closest(".ficha__tabla-wrap").querySelector(".ficha__tablas");
+            const bloque = document.createElement("div");
+            bloque.innerHTML = crearTablaBloqueHTML(
+                'Nueva tabla',
+                '<tr><th style="text-align:left;padding-left:3mm;">Medida</th><th>Valor</th></tr>',
+                '<tr><td style="text-align:left;padding-left:3mm;" contenteditable="true">—</td><td contenteditable="true">—</td></tr>'
+            );
+            contenedor.appendChild(bloque.firstElementChild);
+            guardarEstadoLocal();
+            return;
+        }
+
+        // Eliminar una tabla de la ficha
+        if (e.target.matches(".btn-eliminar-tabla")) {
+            const bloque = e.target.closest(".tabla-bloque");
+            const contenedor = bloque.closest(".ficha__tablas");
+            if (contenedor.querySelectorAll(".tabla-bloque").length <= 1) {
+                alert("La ficha debe tener al menos una tabla. Si no la necesitas, deja sus celdas vacías.");
+                return;
+            }
+            if (confirm("¿Eliminar esta tabla de la ficha?")) {
+                bloque.remove();
+                guardarEstadoLocal();
+            }
+            return;
+        }
+
         // Cargar Tabla Excel (TSV)
         if (e.target.matches(".btn-pegar-excel")) {
-            const wrap = e.target.closest(".ficha__tabla-wrap");
-            const tabla = wrap.querySelector("table.cotas");
-            
-            if (wrap.querySelector('.excel-paste-area')) return;
+            const bloque = e.target.closest(".tabla-bloque");
+            const tabla = bloque.querySelector("table.cotas");
+
+            if (bloque.querySelector('.excel-paste-area')) return;
 
             const pasteArea = document.createElement("div");
             pasteArea.className = "excel-paste-area";
@@ -267,7 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
             
             tabla.style.display = "none";
             e.target.style.display = "none";
-            wrap.insertBefore(pasteArea, tabla);
+            bloque.insertBefore(pasteArea, tabla);
 
             const textarea = pasteArea.querySelector("textarea");
             textarea.focus();
@@ -331,15 +430,18 @@ document.addEventListener("DOMContentLoaded", () => {
             const fichaId = e.target.getAttribute("data-id");
             const ficha = document.getElementById(fichaId);
             if (!ficha) return;
-            
+
+            const estabaEnEdicion = isEditMode;
             document.body.classList.remove("edit-mode");
+            document.body.classList.add("imprimiendo-una");
             document.querySelectorAll('.ficha').forEach(f => f.classList.remove('imprimiendo'));
             ficha.classList.add("imprimiendo");
-            
+
             setTimeout(() => {
                 window.print();
                 ficha.classList.remove("imprimiendo");
-                if (isEditMode) document.body.classList.add("edit-mode");
+                document.body.classList.remove("imprimiendo-una");
+                if (estabaEnEdicion) document.body.classList.add("edit-mode");
             }, 150);
         }
     });
