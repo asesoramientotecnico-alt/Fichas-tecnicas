@@ -79,6 +79,31 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #e8e8e8; color: va
 .tag-norma { font-size: 6.5pt; background: var(--azul-claro); color: var(--azul); padding: 0.5mm 2mm; border-radius: 2px; font-weight: 500; flex-shrink: 0; }
 .idx-normas { display: inline-flex; align-items: center; gap: 1mm; margin-left: 2mm; }
 
+/* Botones de edición del índice (solo en modo edición) */
+.btn-idx-add {
+  display: none; margin-top: 2mm; padding: 2mm 5mm;
+  background: #e8f4e8; color: #2a7a2a; border: 1px dashed #aadaaa;
+  border-radius: 4px; font-family: inherit; font-size: 7.5pt;
+  font-weight: 600; cursor: pointer; width: 100%;
+}
+.btn-idx-add:hover { background: #d4ecd4; }
+.edit-mode .btn-idx-add { display: block; }
+
+.btn-idx-del {
+  flex-shrink: 0; width: 14px; height: 14px; padding: 0; margin-left: 2mm;
+  border: none; border-radius: 50%; background: #C8102E; color: white;
+  font-size: 11px; font-weight: 700; line-height: 1; cursor: pointer;
+  display: none; align-items: center; justify-content: center;
+}
+.btn-idx-del:hover { background: #9e0c24; }
+.edit-mode .btn-idx-del { display: inline-flex; }
+
+/* Número de página editable en modo edición */
+.edit-mode .subcat-pagina[contenteditable="true"] {
+  border-bottom: 1.5px dashed var(--azul); min-width: 8mm;
+  text-align: right; cursor: text; background: rgba(0,61,165,0.03);
+}
+
 /* Casilla de "completado" en el índice */
 .idx-check {
   width: 13px; height: 13px; flex-shrink: 0; align-self: center;

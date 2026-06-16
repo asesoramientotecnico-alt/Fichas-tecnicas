@@ -44,20 +44,49 @@ document.addEventListener("DOMContentLoaded", () => {
         if (indiceCuerpo) localStorage.setItem(INDICE_KEY, indiceCuerpo.innerHTML);
     }
 
-    // Hace editables los títulos del índice e inserta una casilla de
-    // "completado" al inicio de cada fila (categoría y subcategoría).
-    // Es idempotente: no duplica casillas si ya existen.
+    // Prepara el índice: hace editables los textos y páginas, e inserta
+    // casillas de completado, botones de eliminar y botones de agregar.
+    // Es idempotente: no duplica elementos si ya existen.
     function prepararIndice() {
         if (!indiceCuerpo) return;
+
+        // Textos editables
         indiceCuerpo.querySelectorAll('.cat-nombre, .subcat-nombre').forEach(el => {
             el.setAttribute('contenteditable', 'true');
         });
+        // Números de página editables (para ítems manuales sin ficha)
+        indiceCuerpo.querySelectorAll('.subcat-pagina').forEach(el => {
+            el.setAttribute('contenteditable', 'true');
+        });
+
+        // Casillas de completado al inicio de cada fila
         indiceCuerpo.querySelectorAll('.cat-titulo-row, .subcat-row').forEach(row => {
             if (!row.querySelector('.idx-check')) {
                 const chk = document.createElement('span');
                 chk.className = 'idx-check';
                 chk.title = 'Marcar como completado';
                 row.insertBefore(chk, row.firstChild);
+            }
+        });
+
+        // Botón eliminar por subcat-row (solo en edición)
+        indiceCuerpo.querySelectorAll('.subcat-row').forEach(row => {
+            if (!row.querySelector('.btn-idx-del')) {
+                const del = document.createElement('button');
+                del.className = 'btn-idx-del edit-only';
+                del.title = 'Eliminar este ítem';
+                del.textContent = '×';
+                row.appendChild(del);
+            }
+        });
+
+        // Botón agregar ítem por categoría (solo en edición)
+        indiceCuerpo.querySelectorAll('.cat-bloque').forEach(bloque => {
+            if (!bloque.querySelector('.btn-idx-add')) {
+                const btn = document.createElement('button');
+                btn.className = 'btn-idx-add edit-only';
+                btn.textContent = '+ Agregar ítem';
+                bloque.appendChild(btn);
             }
         });
     }
@@ -113,10 +142,46 @@ document.addEventListener("DOMContentLoaded", () => {
         if (cambios) guardarEstadoLocal();
     }
 
+    // Auto-recalcula los números de página del índice leyendo el orden
+    // real de las fichas en el DOM: portada=1, índice=2, fichas desde 3.
+    // Solo actualiza filas que tienen un data-target vinculado a una ficha.
+    // Las filas manuales (sin ficha) quedan con su número editable intacto.
+    function recalcularPaginas() {
+        const fichas = Array.from(document.querySelectorAll('#catalogo-container .ficha'));
+        document.querySelectorAll('.indice__cuerpo .subcat-row').forEach(row => {
+            const normasSpan = row.querySelector('.idx-normas[data-target]');
+            if (!normasSpan) return;
+            const fichaId = normasSpan.getAttribute('data-target');
+            const fichaIdx = fichas.findIndex(f => f.id === fichaId);
+            if (fichaIdx === -1) return;
+            const pag = row.querySelector('.subcat-pagina');
+            if (pag) pag.textContent = fichaIdx + 3;
+        });
+    }
+
+    // Renumera categorías (1, 2…) y subcategorías (1.1, 1.2…) según
+    // el orden actual en el DOM, útil tras agregar o eliminar ítems.
+    function renumerarIndice() {
+        let catNum = 0;
+        document.querySelectorAll('.indice__cuerpo .cat-bloque').forEach(bloque => {
+            catNum++;
+            const catNumSpan = bloque.querySelector('.cat-titulo-row .cat-num');
+            if (catNumSpan) catNumSpan.textContent = catNum;
+            let subcatNum = 0;
+            bloque.querySelectorAll('.subcat-row').forEach(row => {
+                subcatNum++;
+                const numSpan = row.querySelector('.subcat-num');
+                if (numSpan) numSpan.textContent = `${catNum}.${subcatNum}`;
+            });
+        });
+        guardarIndiceLocal();
+    }
+
     // ==========================================
     // SINCRONIZAR ÍNDICE
     // ==========================================
     function sincronizarIndice() {
+        recalcularPaginas();
         document.querySelectorAll('.idx-normas').forEach(contenedor => {
             const fichaId = contenedor.getAttribute('data-target');
             const ficha = document.getElementById(fichaId);
@@ -330,6 +395,29 @@ document.addEventListener("DOMContentLoaded", () => {
     // 4. EVENT DELEGATION (Clics globales)
     // ==========================================
     document.addEventListener("click", (e) => {
+        // Agregar ítem nuevo al índice dentro de una categoría
+        if (e.target.matches('.btn-idx-add')) {
+            const bloque = e.target.closest('.cat-bloque');
+            const lista = bloque.querySelector('.subcat-lista');
+            const catNum = bloque.querySelector('.cat-num').textContent.trim();
+            const count = lista.querySelectorAll('.subcat-row').length + 1;
+            const row = document.createElement('div');
+            row.className = 'subcat-row';
+            row.innerHTML = `<span class="subcat-num">${catNum}.${count}</span><a class="subcat-nombre" contenteditable="true">Nuevo ítem</a><span class="idx-normas"></span><div class="subcat-punteos"></div><span class="subcat-pagina" contenteditable="true">—</span>`;
+            lista.appendChild(row);
+            prepararIndice();
+            renumerarIndice();
+            return;
+        }
+
+        // Eliminar ítem del índice
+        if (e.target.matches('.btn-idx-del')) {
+            if (!isEditMode) return;
+            const row = e.target.closest('.subcat-row');
+            if (row) { row.remove(); renumerarIndice(); }
+            return;
+        }
+
         // Marcar / desmarcar como completado en el índice
         if (e.target.matches('.idx-check')) {
             const row = e.target.closest('.cat-titulo-row, .subcat-row');
