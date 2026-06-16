@@ -79,6 +79,21 @@ body { font-family: 'DM Sans', Arial, sans-serif; background: #e8e8e8; color: va
 .tag-norma { font-size: 6.5pt; background: var(--azul-claro); color: var(--azul); padding: 0.5mm 2mm; border-radius: 2px; font-weight: 500; flex-shrink: 0; }
 .idx-normas { display: inline-flex; align-items: center; gap: 1mm; margin-left: 2mm; }
 
+/* Casilla de "completado" en el índice */
+.idx-check {
+  width: 13px; height: 13px; flex-shrink: 0; align-self: center;
+  border: 1.5px solid var(--gris-medio); border-radius: 3px;
+  cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+  color: transparent; font-size: 9px; font-weight: 700; line-height: 1;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.idx-check::after { content: "✓"; }
+.idx-check:hover { border-color: var(--azul); }
+.completado > .idx-check { background: #2a7a2a; border-color: #2a7a2a; color: #fff; }
+.subcat-row.completado .subcat-nombre { color: #2a7a2a; }
+.cat-titulo-row.completado .cat-nombre { color: #2a7a2a; }
+.subcat-row.completado, .cat-titulo-row.completado { background: rgba(42,122,42,0.06); }
+
 /* ══ FICHAS ══ */
 .ficha {
   width: 210mm; min-height: 297mm; background: var(--blanco);
@@ -260,5 +275,5 @@ tr.serie-sep td { background: var(--azul) !important; color: white !important; f
   body.imprimiendo-una .pagina,
   body.imprimiendo-una .ficha:not(.imprimiendo) { display: none !important; }
   .ficha__tabla-wrap, .ficha__normas-bloque, .prop-mec, .tabla-bloque { break-inside: avoid; page-break-inside: avoid; }
-  .btn-floating, #edit-toolbar, .edit-only, .edit-only-flex, .btn-exportar-ficha { display: none !important; }
+  .btn-floating, #edit-toolbar, .edit-only, .edit-only-flex, .btn-exportar-ficha, .idx-check { display: none !important; }
 }

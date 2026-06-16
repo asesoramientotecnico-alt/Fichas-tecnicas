@@ -1,6 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("catalogo-container");
     const LOCAL_STORAGE_KEY = "famiq_catalogo_estado";
+    const INDICE_KEY = "famiq_indice_estado";
+    const indiceCuerpo = document.querySelector(".indice__cuerpo");
+    let indiceBaseHTML = "";
     let isEditMode = false;
     let hoveredElement = null; // Para rastrear dónde está el mouse al presionar Ctrl+V
 
@@ -19,6 +22,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.error("No se encontró catalogoData. Asegúrate de que data.js esté cargado antes que app.js.");
             }
         }
+        // Índice: guardar copia base, restaurar estado guardado y preparar
+        if (indiceCuerpo) {
+            indiceBaseHTML = indiceCuerpo.innerHTML;
+            const idxGuardado = localStorage.getItem(INDICE_KEY);
+            if (idxGuardado) indiceCuerpo.innerHTML = idxGuardado;
+            prepararIndice();
+        }
+
         sincronizarIndice();
         setupEventListeners();
     }
@@ -27,6 +38,28 @@ document.addEventListener("DOMContentLoaded", () => {
         if (container) {
             localStorage.setItem(LOCAL_STORAGE_KEY, container.innerHTML);
         }
+    }
+
+    function guardarIndiceLocal() {
+        if (indiceCuerpo) localStorage.setItem(INDICE_KEY, indiceCuerpo.innerHTML);
+    }
+
+    // Hace editables los títulos del índice e inserta una casilla de
+    // "completado" al inicio de cada fila (categoría y subcategoría).
+    // Es idempotente: no duplica casillas si ya existen.
+    function prepararIndice() {
+        if (!indiceCuerpo) return;
+        indiceCuerpo.querySelectorAll('.cat-nombre, .subcat-nombre').forEach(el => {
+            el.setAttribute('contenteditable', 'true');
+        });
+        indiceCuerpo.querySelectorAll('.cat-titulo-row, .subcat-row').forEach(row => {
+            if (!row.querySelector('.idx-check')) {
+                const chk = document.createElement('span');
+                chk.className = 'idx-check';
+                chk.title = 'Marcar como completado';
+                row.insertBefore(chk, row.firstChild);
+            }
+        });
     }
 
     // Actualiza estados guardados con la estructura antigua (una sola
@@ -297,10 +330,21 @@ document.addEventListener("DOMContentLoaded", () => {
     // 4. EVENT DELEGATION (Clics globales)
     // ==========================================
     document.addEventListener("click", (e) => {
+        // Marcar / desmarcar como completado en el índice
+        if (e.target.matches('.idx-check')) {
+            const row = e.target.closest('.cat-titulo-row, .subcat-row');
+            if (row) {
+                row.classList.toggle('completado');
+                guardarIndiceLocal();
+            }
+            return;
+        }
+
         // Navegación del Índice
         const link = e.target.closest('a[href^="#"]');
         if (link) {
             e.preventDefault();
+            if (isEditMode) return; // en edición el clic posiciona el cursor para editar el texto
             const targetId = link.getAttribute("href").substring(1);
             const targetElement = document.getElementById(targetId);
             if (targetElement) targetElement.scrollIntoView({ behavior: "smooth" });
@@ -490,7 +534,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================
     document.addEventListener("input", (e) => {
         if (e.target.hasAttribute("contenteditable")) {
-            if (e.target.classList.contains("ficha__normas-cell-val") || 
+            if (e.target.closest(".indice__cuerpo")) {
+                guardarIndiceLocal();
+                return;
+            }
+            if (e.target.classList.contains("ficha__normas-cell-val") ||
                 e.target.classList.contains("ficha__info-val") ||
                 e.target.closest(".ficha__info-val")) {
                 sincronizarIndice();
@@ -528,12 +576,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const btnReset = document.getElementById("btn-reset-state");
         if (btnReset) {
             btnReset.addEventListener("click", () => {
-                if(confirm("¿Restaurar el catálogo a su estado base original? Se perderán las ediciones no guardadas.")){
+                if(confirm("¿Restaurar el catálogo y el índice a su estado base original? Se perderán las ediciones y las marcas de completado.")){
                     localStorage.removeItem(LOCAL_STORAGE_KEY);
+                    localStorage.removeItem(INDICE_KEY);
                     if (typeof catalogoData !== 'undefined' && catalogoData.fichas) {
                         renderizarCatalogoDesdeData();
-                        sincronizarIndice();
                     }
+                    if (indiceCuerpo) {
+                        indiceCuerpo.innerHTML = indiceBaseHTML;
+                        prepararIndice();
+                    }
+                    sincronizarIndice();
                 }
             });
         }
