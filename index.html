@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAMIQ — Catálogo de Bulonería 2025</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<svg style="display: none;">
+  <defs>
+    <marker id="cota-end" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#333"/></marker>
+    <marker id="cota-start" markerWidth="5" markerHeight="5" refX="1" refY="2.5" orient="auto"><path d="M5,0 L0,2.5 L5,5 Z" fill="#333"/></marker>
+  </defs>
+</svg>
+
+<div id="edit-toolbar" class="toolbar-hidden">
+  <span class="tb-label">✏️ Modo edición — Haz clic para editar texto. Apunta a los planos y presiona Ctrl+V para pegar imágenes.</span>
+  <div class="tb-sep"></div>
+  <button id="btn-reset-state">🔄 Restaurar catálogo base</button>
+  <span style="margin-left:auto;font-size:11px;color:rgba(255,255,255,0.45);">Los cambios se guardan en el navegador localmente</span>
+  <div class="tb-sep"></div>
+  <button id="btn-exit-edit" class="tb-exit">Salir de edición</button>
+</div>
+
+<div class="pagina portada">
+  <div class="portada__banda-top"><span class="portada__tagline-top">Especialistas en acero inoxidable</span></div>
+  <div class="portada__cuerpo">
+    <div class="portada__geo"></div>
+    <div class="portada__contenido">
+      <div class="portada__logo-bloque"><div class="logo-famiq">FAM<span>I</span>Q</div><div class="logo-sub">Aceros inoxidables</div></div>
+      <div class="portada__label">Línea bulonería y herrajes</div>
+      <div class="portada__titulo" contenteditable="true">Catálogo de Bulonería</div>
+      <div class="portada__subtitulo" contenteditable="true">Acero Inoxidable</div>
+      <div class="portada__linea"></div>
+      <div class="portada__specs" contenteditable="true">
+        <div class="portada__spec">Grados disponibles: 304 · 316 · 316L · 2205 Duplex</div>
+        <div class="portada__spec">Normas: DIN · ISO · ASTM · ANSI</div>
+      </div>
+    </div>
+  </div>
+  <div class="portada__pie">
+    <div class="portada__pie-logo">FAM<span>I</span>Q</div>
+    <div class="portada__pie-datos">famiq.com.ar<br>Catálogo 2025</div>
+  </div>
+</div>
+
+<div class="pagina indice">
+  <div class="indice__header">
+    <div class="indice__header-titulo">Índice de contenidos</div>
+    <div class="indice__header-logo">FAM<span>I</span>Q</div>
+  </div>
+  <div class="indice__cuerpo">
+    <div class="indice__intro" contenteditable="true">Este catálogo presenta las especificaciones técnicas de la línea de bulonería en acero inoxidable.</div>
+
+    <div class="cat-bloque">
+      <div class="cat-titulo-row"><span class="cat-num">1</span><a class="cat-nombre" href="#allen-cabeza-cilindrica">Allen de acero inoxidable</a><div class="cat-punteos"></div></div>
+      <div class="subcat-lista">
+        <div class="subcat-row"><span class="subcat-num">1.1</span><a class="subcat-nombre" href="#allen-cabeza-cilindrica">Allen cabeza cilíndrica</a><span class="idx-normas" data-target="allen-cabeza-cilindrica"></span><div class="subcat-punteos"></div><span class="subcat-pagina">3</span></div>
+        <div class="subcat-row"><span class="subcat-num">1.2</span><a class="subcat-nombre" href="#allen-cabeza-fresada">Allen cabeza fresada</a><span class="idx-normas" data-target="allen-cabeza-fresada"></span><div class="subcat-punteos"></div><span class="subcat-pagina">4</span></div>
+        <div class="subcat-row"><span class="subcat-num">1.3</span><a class="subcat-nombre" href="#allen-cabeza-boton">Allen cabeza botón</a><span class="idx-normas" data-target="allen-cabeza-boton"></span><div class="subcat-punteos"></div><span class="subcat-pagina">5</span></div>
+        <div class="subcat-row"><span class="subcat-num">1.4</span><a class="subcat-nombre" href="#allen-gusano">Allen gusano / sin cabeza</a><span class="idx-normas" data-target="allen-gusano"></span><div class="subcat-punteos"></div><span class="subcat-pagina">6</span></div>
+      </div>
+    </div>
+
+    <div class="cat-bloque">
+      <div class="cat-titulo-row"><span class="cat-num">2</span><a class="cat-nombre" href="#arandela-plana">Arandelas de acero inoxidable</a><div class="cat-punteos"></div></div>
+      <div class="subcat-lista">
+        <div class="subcat-row"><span class="subcat-num">2.1</span><a class="subcat-nombre" href="#arandela-plana">Arandela plana</a><span class="idx-normas" data-target="arandela-plana"></span><div class="subcat-punteos"></div><span class="subcat-pagina">7</span></div>
+        <div class="subcat-row"><span class="subcat-num">2.2</span><a class="subcat-nombre" href="#arandela-grower">Arandela Grower de presión</a><span class="idx-normas" data-target="arandela-grower"></span><div class="subcat-punteos"></div><span class="subcat-pagina">8</span></div>
+      </div>
+    </div>
+
+    <div class="cat-bloque">
+      <div class="cat-titulo-row"><span class="cat-num">3</span><a class="cat-nombre" href="#bulon-hexagonal">Bulones de acero inoxidable</a><div class="cat-punteos"></div></div>
+      <div class="subcat-lista">
+        <div class="subcat-row"><span class="subcat-num">3.1</span><a class="subcat-nombre" href="#bulon-hexagonal">Bulón cabeza hexagonal — rosca parcial</a><span class="idx-normas" data-target="bulon-hexagonal"></span><div class="subcat-punteos"></div><span class="subcat-pagina">9</span></div>
+        <div class="subcat-row"><span class="subcat-num">3.2</span><a class="subcat-nombre" href="#bulon-hexagonal-total">Bulón cabeza hexagonal — rosca total</a><span class="idx-normas" data-target="bulon-hexagonal-total"></span><div class="subcat-punteos"></div><span class="subcat-pagina">10</span></div>
+      </div>
+    </div>
+
+    <div class="cat-bloque">
+      <div class="cat-titulo-row"><span class="cat-num">4</span><a class="cat-nombre" href="#remache-pop">Remaches de acero inoxidable</a><div class="cat-punteos"></div></div>
+      <div class="subcat-lista">
+        <div class="subcat-row"><span class="subcat-num">4.1</span><a class="subcat-nombre" href="#remache-pop">Remache Pop — remache ciego</a><span class="idx-normas" data-target="remache-pop"></span><div class="subcat-punteos"></div><span class="subcat-pagina">11</span></div>
+      </div>
+    </div>
+
+    <div class="cat-bloque">
+      <div class="cat-titulo-row"><span class="cat-num">5</span><a class="cat-nombre" href="#parker-pan-head">Tornillos de acero inoxidable</a><div class="cat-punteos"></div></div>
+      <div class="subcat-lista">
+        <div class="subcat-row"><span class="subcat-num">5.1</span><a class="subcat-nombre" href="#parker-pan-head">Parker cabeza fijadora</a><span class="idx-normas" data-target="parker-pan-head"></span><div class="subcat-punteos"></div><span class="subcat-pagina">12</span></div>
+        <div class="subcat-row"><span class="subcat-num">5.2</span><a class="subcat-nombre" href="#parker-cabeza-fresada">Parker cabeza fresada</a><span class="idx-normas" data-target="parker-cabeza-fresada"></span><div class="subcat-punteos"></div><span class="subcat-pagina">13</span></div>
+        <div class="subcat-row"><span class="subcat-num">5.3</span><a class="subcat-nombre" href="#tirafondo-hex">Tirafondo cabeza hexagonal</a><span class="idx-normas" data-target="tirafondo-hex"></span><div class="subcat-punteos"></div><span class="subcat-pagina">14</span></div>
+      </div>
+    </div>
+
+    <div class="cat-bloque">
+      <div class="cat-titulo-row"><span class="cat-num">6</span><a class="cat-nombre" href="#tuerca-hexagonal">Tuercas de acero inoxidable</a><div class="cat-punteos"></div></div>
+      <div class="subcat-lista">
+        <div class="subcat-row"><span class="subcat-num">6.1</span><a class="subcat-nombre" href="#tuerca-hexagonal">Tuerca hexagonal estándar</a><span class="idx-normas" data-target="tuerca-hexagonal"></span><div class="subcat-punteos"></div><span class="subcat-pagina">15</span></div>
+        <div class="subcat-row"><span class="subcat-num">6.2</span><a class="subcat-nombre" href="#tuerca-autofrenante">Tuerca autofrenante con nylon</a><span class="idx-normas" data-target="tuerca-autofrenante"></span><div class="subcat-punteos"></div><span class="subcat-pagina">16</span></div>
+        <div class="subcat-row"><span class="subcat-num">6.3</span><a class="subcat-nombre" href="#tuerca-mariposa">Tuerca mariposa</a><span class="idx-normas" data-target="tuerca-mariposa"></span><div class="subcat-punteos"></div><span class="subcat-pagina">17</span></div>
+        <div class="subcat-row"><span class="subcat-num">6.4</span><a class="subcat-nombre" href="#tuerca-ciega">Tuerca ciega (tuerca tapa)</a><span class="idx-normas" data-target="tuerca-ciega"></span><div class="subcat-punteos"></div><span class="subcat-pagina">18</span></div>
+      </div>
+    </div>
+
+    <div class="cat-bloque">
+      <div class="cat-titulo-row"><span class="cat-num">7</span><a class="cat-nombre" href="#varilla-roscada">Varillas roscadas y espárragos</a><div class="cat-punteos"></div></div>
+      <div class="subcat-lista">
+        <div class="subcat-row"><span class="subcat-num">7.1</span><a class="subcat-nombre" href="#varilla-roscada">Varilla roscada</a><span class="idx-normas" data-target="varilla-roscada"></span><div class="subcat-punteos"></div><span class="subcat-pagina">19</span></div>
+        <div class="subcat-row"><span class="subcat-num">7.2</span><a class="subcat-nombre" href="#esparrago">Espárrago con tuerca y arandela</a><span class="idx-normas" data-target="esparrago"></span><div class="subcat-punteos"></div><span class="subcat-pagina">20</span></div>
+      </div>
+    </div>
+
+  </div>
+  <div class="indice__pie">
+    <span class="pie-txt">famiq.com.ar · Catálogo 2025</span><span class="pie-pag">2</span>
+  </div>
+</div>
+
+<div id="catalogo-container"></div>
+
+<button id="btn-toggle-edit" class="btn-floating">✏️ Editar contenido</button>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
