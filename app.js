@@ -311,6 +311,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.target.matches("#btn-toggle-edit") || e.target.matches("#btn-exit-edit")) {
             isEditMode = !isEditMode;
             document.body.classList.toggle("edit-mode", isEditMode);
+            const toolbar = document.getElementById("edit-toolbar");
+            if (toolbar) toolbar.classList.toggle("toolbar-hidden", !isEditMode);
             const btnFloat = document.getElementById("btn-toggle-edit");
             if (btnFloat) {
                 btnFloat.innerHTML = isEditMode ? '✕ Salir de edición' : '✏️ Editar contenido';
@@ -496,6 +498,31 @@ document.addEventListener("DOMContentLoaded", () => {
             guardarEstadoLocal();
         }
     });
+
+    // ==========================================
+    // ELIMINAR FILAS / SECCIONES (botones embebidos en la data)
+    // Solo operativos en modo edición.
+    // ==========================================
+    window.eliminarFila = function (btn) {
+        if (!isEditMode) return;
+        const tr = btn.closest("tr");
+        if (tr) { tr.remove(); guardarEstadoLocal(); }
+    };
+
+    window.eliminarSeccion = function (btn) {
+        if (!isEditMode) return;
+        const tr = btn.closest("tr");
+        if (!tr) return;
+        if (!confirm("¿Eliminar esta sección y todas sus filas?")) return;
+        const aBorrar = [tr];
+        let sig = tr.nextElementSibling;
+        while (sig && !sig.classList.contains("serie-sep")) {
+            aBorrar.push(sig);
+            sig = sig.nextElementSibling;
+        }
+        aBorrar.forEach(r => r.remove());
+        guardarEstadoLocal();
+    };
 
     function setupEventListeners() {
         const btnReset = document.getElementById("btn-reset-state");

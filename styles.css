@@ -211,11 +211,31 @@ tr.serie-sep td { background: var(--azul) !important; color: white !important; f
 
 .edit-mode [contenteditable="true"] { outline: none; border-bottom: 1.5px dashed #003DA5; background: rgba(0,61,165,0.03); cursor: text; min-width: 10px; display: inline-block; }
 .edit-mode [contenteditable="true"]:focus { background: rgba(0,61,165,0.07); border-bottom-color: #C8102E; border-radius: 2px 2px 0 0; }
-.edit-mode td[contenteditable="true"], .edit-mode .ficha__nombre-es, .edit-mode .ficha__desc, .edit-mode .ficha__info-val { display: block; }
+.edit-mode .ficha__nombre-es, .edit-mode .ficha__desc, .edit-mode .ficha__info-val { display: block; }
+/* Las celdas de las tablas deben mantener su formato de tabla al editar */
+.edit-mode table td[contenteditable="true"], .edit-mode table th { display: table-cell !important; }
+
+/* Botones de eliminar embebidos en la data: solo visibles en edición */
+.btn-del-fila, .btn-eliminar-seccion { display: none; }
+.edit-mode .btn-del-fila {
+  display: flex; align-items: center; justify-content: center;
+  position: absolute; right: 1.5mm; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 14px; padding: 0; line-height: 1;
+  border: none; border-radius: 50%; background: #C8102E; color: #fff;
+  font-size: 11px; font-weight: 700; cursor: pointer;
+}
+.edit-mode .btn-del-fila:hover { background: #9e0c24; }
+.edit-mode .btn-eliminar-seccion {
+  display: inline-flex; align-items: center; margin-left: 8px;
+  background: rgba(255,255,255,0.92); color: #C8102E; border: none;
+  border-radius: 3px; padding: 1px 7px; font-family: inherit;
+  font-size: 7pt; font-weight: 700; cursor: pointer; vertical-align: middle;
+}
+.edit-mode .btn-eliminar-seccion:hover { background: #fff; }
 .edit-mode body > * { margin-top: 0; }
 .edit-mode .pagina:first-child, .edit-mode .ficha:first-of-type { margin-top: 52px; }
 
-#edit-toolbar { position: fixed; top: 0; left: 0; right: 0; z-index: 10000; background: #1a1a1a; color: white; padding: 10px 24px; align-items: center; gap: 16px; font-family: 'DM Sans', Arial, sans-serif; font-size: 13px; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+#edit-toolbar { position: fixed; top: 0; left: 0; right: 0; z-index: 10000; background: #1a1a1a; color: white; padding: 10px 24px; display: flex; align-items: center; gap: 16px; font-family: 'DM Sans', Arial, sans-serif; font-size: 13px; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
 #edit-toolbar .tb-label { font-weight: 700; color: #4fc3f7; display: flex; align-items: center; gap: 6px; }
 #edit-toolbar .tb-sep { width: 1px; height: 24px; background: rgba(255,255,255,0.15); }
 #edit-toolbar button { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 5px 14px; border-radius: 5px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: background 0.15s; }
@@ -224,7 +244,8 @@ tr.serie-sep td { background: var(--azul) !important; color: white !important; f
 
 .btn-floating { position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: #1a1a1a; color: white; border: none; border-radius: 8px; padding: 12px 22px; font-family: 'DM Sans', Arial, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 18px rgba(0,0,0,0.25); }
 
-.btn-exportar-ficha { display: inline-flex; align-items: center; gap: 5px; font-size: 6.5pt; color: #003DA5; background: #e8eef8; border: 0.5px solid #b0c4e8; border-radius: 3px; padding: 1.5mm 3mm; cursor: pointer; font-weight: 600; transition: background 0.15s; }
+.btn-exportar-ficha { display: inline-flex; align-items: center; gap: 6px; font-size: 9pt; color: #fff; background: var(--azul); border: none; border-radius: 5px; padding: 2.2mm 6mm; cursor: pointer; font-weight: 600; transition: background 0.15s; box-shadow: 0 1px 5px rgba(0,0,0,0.18); }
+.btn-exportar-ficha:hover { background: var(--azul-oscuro); }
 .btn-reemplazar-svg { position: absolute; bottom: 4px; right: 4px; background: rgba(0,61,165,0.85); color: white; border: none; border-radius: 3px; font-size: 9px; padding: 2px 8px; cursor: pointer; z-index: 5; }
 .tabla-edit-bar { gap: 6px; flex-wrap: wrap; margin-bottom: 3mm; }
 .ficha__vista.tiene-imagen svg { display: none !important; }
